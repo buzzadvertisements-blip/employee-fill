@@ -138,19 +138,29 @@ async function sb(method, table, body, qs='') {
 
 // WEEK UTILS
 function getWeekNum(d){
-    const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),day=dt.getUTCDay()||7;
-    dt.setUTCDate(dt.getUTCDate()+4-day);
-    const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
-    return [dt.getUTCFullYear(),Math.ceil((((dt-ys)/86400000)+1)/7)];
+    // Week starts Friday - find which week this date falls in
+    const day = d.getDay(); // 0=Sun
+    const toFri = (day + 2) % 7; // days since last Friday
+    const fri = new Date(d);
+    fri.setDate(d.getDate() - toFri);
+    const jan1 = new Date(fri.getFullYear(), 0, 1);
+    const dow = jan1.getDay();
+    const toFriJan = (dow + 2) % 7;
+    const firstFri = new Date(jan1);
+    firstFri.setDate(jan1.getDate() - toFriJan);
+    const weekNum = Math.floor((fri - firstFri) / (7 * 86400000)) + 1;
+    return [fri.getFullYear(), weekNum];
 }
 function getWeekDates(year,week){
-    const jan1=new Date(year,0,1),dow=jan1.getDay()||7;
-    const mon=new Date(jan1); mon.setDate(jan1.getDate()+(week-1)*7-dow+1);
-    const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+    const jan1=new Date(year,0,1),dow=jan1.getDay();
+    const toFri=(dow+2)%7;
+    const firstFri=new Date(jan1); firstFri.setDate(jan1.getDate()-toFri);
+    const fri=new Date(firstFri); fri.setDate(firstFri.getDate()+(week-1)*7);
+    const thu=new Date(fri); thu.setDate(fri.getDate()+6);
     const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    return `${f(mon)} – ${f(sun)}`;
+    return `${f(fri)} – ${f(thu)}`;
 }
-function weeksInYear(y){return getWeekNum(new Date(y,11,28))[1];}
+function weeksInYear(y){return getWeekNum(new Date(y,11,31))[1];}
 function weekKey(y,w){return `${y}-W${String(w).padStart(2,'0')}`;}
 function getSelWeek(){return parseInt(document.getElementById('weekSel').value);}
 function getSelYear(){return parseInt(document.getElementById('yearSel').value);}
