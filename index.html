@@ -42,6 +42,14 @@
         .btn-g{background:var(--input);color:var(--text);border:1px solid var(--border);}
         .btn-group{display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;}
         .chart-container{position:relative;height:220px;margin-top:1rem;}
+        .chart-nav{display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;}
+        .nav-btn{padding:0.4rem 0.85rem;background:var(--input);border:1px solid var(--border);border-radius:0.5rem;color:var(--text);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;}
+        .nav-btn:hover{background:var(--border);transform:translateY(-1px);}
+        .nav-btn.accent{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:var(--accent);}
+        .nav-btn.accent:hover{background:rgba(59,130,246,0.2);}
+        .nav-btn.reset{background:var(--accent);color:white;border-color:var(--accent);}
+        .nav-btn.reset:hover{background:var(--primary-dark);}
+        .range-label{padding:0.4rem 1rem;background:var(--input);border-radius:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--accent);white-space:nowrap;}
         .history-table{width:100%;border-collapse:collapse;}
         .history-table th{padding:0.75rem 1rem;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);background:var(--input);}
         .history-table td{padding:0.75rem 1rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.82rem;}
@@ -124,7 +132,7 @@
 const SB_URL = 'https://fuvnwjskwjtvpwtbdzey.supabase.co';
 const SB_KEY = 'sb_publishable_8w77NMR3vcQXnJ6YpbN6Fw_6QgiI6Sl';
 
-let empId='', empName='', graphs=[], myData=[], breakdowns={};
+let empId='', empName='', graphs=[], myData=[], breakdowns={}, viewOffset=0;
 
 async function sb(method, table, body, qs='') {
     const r = await fetch(`${SB_URL}/rest/v1/${table}${qs}`,{
@@ -262,12 +270,55 @@ document.getElementById('dataForm').addEventListener('submit',async function(e){
 function clearForm(){graphs.forEach(g=>{const el=document.getElementById(`inp_${g.replace(/\W/g,'_')}`);if(el)el.value='';});}
 
 // CHARTS
+function getWindowData(data) {
+    const total = data.length;
+    let end = total + viewOffset;
+    if (end > total) { end = total; }
+    let start = end - 12;
+    if (start < 0) { start = 0; }
+    return data.slice(start, end);
+}
+
+function getRangeLabel(data) {
+    const win = getWindowData(data);
+    if (!win.length) return 'Last 12 Weeks';
+    const first = win[0], last = win[win.length-1];
+    return `W${String(first.week).padStart(2,'0')} ${first.year} – W${String(last.week).padStart(2,'0')} ${last.year}`;
+}
+
+function shiftView(n) {
+    const firstGraph = myData.filter(d => d.graph_name === (graphs[0]||''));
+    if (!firstGraph.length) return;
+    const max = -(firstGraph.length - 12);
+    viewOffset = Math.max(max, Math.min(0, viewOffset + n));
+    renderCharts();
+}
+
+function resetView() { viewOffset = 0; renderCharts(); }
+
 function renderCharts(){
     const s=document.getElementById('chartsSection');s.innerHTML='';
     if(!graphs.length||!myData.length) return;
     const selKey=weekKey(getSelYear(),getSelWeek());
+
+    // Nav bar
+    const firstGraph = myData.filter(d => d.graph_name === (graphs[0]||''));
+    const rangeLabel = firstGraph.length ? getRangeLabel(firstGraph) : 'Last 12 Weeks';
+    const navDiv = document.createElement('div');
+    navDiv.className = 'chart-nav';
+    navDiv.style.marginBottom = '1rem';
+    navDiv.innerHTML = `
+        <button class="nav-btn" onclick="shiftView(-13)">⏪ 3 Months</button>
+        <button class="nav-btn accent" onclick="shiftView(-1)">⬅️ 1 Week</button>
+        <span class="range-label">${rangeLabel}</span>
+        <button class="nav-btn accent" onclick="shiftView(1)">1 Week ➡️</button>
+        <button class="nav-btn" onclick="shiftView(13)">3 Months ⏩</button>
+        <button class="nav-btn reset" onclick="resetView()">📅 Latest</button>`;
+    s.appendChild(navDiv);
+
     graphs.forEach(g=>{
-        const data=myData.filter(d=>d.graph_name===g).slice(-12);
+        const data=myData.filter(d=>d.graph_name===g);
+        const win = getWindowData(data);
         const latest=data.length?data[data.length-1].value:0;
         const cid=`ch_${g.replace(/\W/g,'_')}`;
         const div=document.createElement('div');div.className='card';
@@ -276,7 +327,7 @@ function renderCharts(){
         setTimeout(()=>{
             new Chart(document.getElementById(cid).getContext('2d'),{
                 type:'line',
-                data:{labels:data.map(d=>`W${String(d.week).padStart(2,'0')} '${String(d.year).slice(2)}`),datasets:[{data:data.map(d=>d.value),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',borderWidth:2.5,tension:0.4,fill:true,pointRadius:data.map(d=>weekKey(d.year,d.week)===selKey?7:4),pointBackgroundColor:data.map(d=>weekKey(d.year,d.week)===selKey?'#22c55e':'#3b82f6'),pointBorderColor:'#1e293b',pointBorderWidth:2}]},
+                data:{labels:win.map(d=>`W${String(d.week).padStart(2,'0')} '${String(d.year).slice(2)}`),datasets:[{data:win.map(d=>d.value),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',borderWidth:2.5,tension:0.4,fill:true,pointRadius:win.map(d=>weekKey(d.year,d.week)===selKey?7:4),pointBackgroundColor:win.map(d=>weekKey(d.year,d.week)===selKey?'#22c55e':'#3b82f6'),pointBorderColor:'#1e293b',pointBorderWidth:2}]},
                 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(148,163,184,0.1)'},ticks:{color:'#94a3b8'}},x:{grid:{color:'rgba(148,163,184,0.1)'},ticks:{color:'#94a3b8'}}}}
             });
         },50);
