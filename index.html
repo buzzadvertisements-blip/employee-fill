@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Weekly Report</title>
+    <title>Weekly Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,50 +12,47 @@
         body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(circle at 15% 40%,rgba(37,99,235,0.06) 0%,transparent 50%),radial-gradient(circle at 85% 70%,rgba(34,197,94,0.04) 0%,transparent 50%);}
         .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
         .topbar h1{font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .topbar p{font-size:0.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:0.1rem;}
         .emp-badge{padding:0.5rem 1.25rem;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:2rem;font-size:0.9rem;font-weight:600;color:var(--accent);}
+        .sync-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 0.9rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:2rem;font-size:0.78rem;color:var(--green);font-family:'JetBrains Mono',monospace;}
+        .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
         .container{max-width:900px;margin:0 auto;padding:2rem;}
         .card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.75rem;margin-bottom:1.5rem;}
         .card h3{font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;}
-        .form-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;}
-        label{font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
-        input,select{padding:0.7rem 0.9rem;background:var(--input);border:1px solid var(--border);border-radius:0.5rem;color:var(--text);font-size:0.95rem;font-family:'JetBrains Mono',monospace;transition:all 0.2s;width:100%;}
-        input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
-        #weekSel{min-width:280px;}
         .week-row{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;}
-        .week-row .form-group{flex:1;min-width:140px;}
+        .fg{display:flex;flex-direction:column;gap:0.4rem;}
+        label{font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+        select,input{padding:0.7rem 0.9rem;background:var(--input);border:1px solid var(--border);border-radius:0.5rem;color:var(--text);font-size:0.95rem;font-family:'JetBrains Mono',monospace;transition:all 0.2s;}
+        select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+        #weekSel{min-width:280px;}
         .week-info{font-size:0.75rem;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-top:0.3rem;}
         .cur-week{padding:0.7rem 1.25rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--green);white-space:nowrap;}
-        .graphs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;}
+        .graphs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem;}
+        .bd-section{margin-top:0.75rem;padding:0.75rem;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:0.5rem;}
+        .bd-title{font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;}
+        .bd-item{display:flex;align-items:center;justify-content:space-between;padding:0.25rem 0.4rem;border-radius:0.3rem;background:rgba(59,130,246,0.06);font-size:0.82rem;margin-bottom:0.3rem;}
+        .bd-del{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:0;font-size:0.82rem;}
+        .bd-del:hover{color:var(--danger);}
+        .bd-add{display:flex;gap:0.4rem;margin-top:0.4rem;}
+        .bd-add input{flex:1;padding:0.4rem 0.6rem;font-size:0.8rem;border-radius:0.35rem;font-family:'DM Sans',sans-serif;}
+        .bd-add button{padding:0.4rem 0.7rem;font-size:0.85rem;border-radius:0.35rem;background:var(--accent);color:white;border:none;cursor:pointer;font-weight:700;}
         button{padding:0.7rem 1.4rem;border:none;border-radius:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
-        .btn-primary{background:var(--primary);color:white;}
-        .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);}
-        .btn-secondary{background:var(--input);color:var(--text);border:1px solid var(--border);}
-        .btn-secondary:hover{background:var(--border);}
+        .btn-p{background:var(--primary);color:white;} .btn-p:hover{background:var(--primary-dark);transform:translateY(-1px);}
+        .btn-g{background:var(--input);color:var(--text);border:1px solid var(--border);}
         .btn-group{display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;}
-        .toast{position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;border-radius:0.75rem;font-weight:600;font-size:0.9rem;z-index:999;display:none;animation:slideIn 0.3s ease;}
-        .toast.success{background:var(--success);color:white;}
-        .toast.error{background:var(--danger);color:white;}
-        @keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-        .sync-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 0.9rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:2rem;font-size:0.78rem;color:var(--green);font-family:'JetBrains Mono',monospace;}
-        .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;}
-        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-        .breakdown-section{margin-top:0.75rem;padding:0.75rem;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:0.5rem;}
-        .breakdown-title{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;}
-        .breakdown-item{display:flex;align-items:center;justify-content:space-between;padding:0.25rem 0.4rem;border-radius:0.3rem;background:rgba(59,130,246,0.06);font-size:0.82rem;margin-bottom:0.3rem;}
-        .breakdown-del{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:0;font-size:0.85rem;}
-        .breakdown-del:hover{color:var(--danger);}
-        .breakdown-add{display:flex;gap:0.4rem;margin-top:0.4rem;}
-        .breakdown-add input{flex:1;padding:0.4rem 0.6rem;font-size:0.8rem;border-radius:0.35rem;}
-        .breakdown-add button{padding:0.4rem 0.7rem;font-size:0.85rem;border-radius:0.35rem;background:var(--accent);color:white;border:none;cursor:pointer;font-weight:700;}
+        .chart-container{position:relative;height:220px;margin-top:1rem;}
         .history-table{width:100%;border-collapse:collapse;}
-        .history-table th{padding:0.75rem 1rem;text-align:left;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);background:var(--input);}
-        .history-table td{padding:0.75rem 1rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.85rem;}
+        .history-table th{padding:0.75rem 1rem;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);background:var(--input);}
+        .history-table td{padding:0.75rem 1rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.82rem;}
         .history-table tr:hover td{background:rgba(59,130,246,0.04);}
+        .toast{position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;border-radius:0.75rem;font-weight:600;font-size:0.9rem;z-index:999;display:none;}
+        .toast.ok{background:var(--success);color:white;} .toast.err{background:var(--danger);color:white;}
         .no-access{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:1rem;}
         .no-access .icon{font-size:4rem;}
-        .no-access h2{font-size:1.5rem;font-weight:700;}
-        .no-access p{color:var(--muted);}
-        .chart-container{position:relative;height:220px;margin-top:1rem;}
+        .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:1rem;color:var(--muted);}
+        .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg);}}
     </style>
 </head>
 <body>
@@ -63,52 +60,47 @@
 <div class="topbar">
     <div>
         <h1>📋 Weekly Report</h1>
-        <p style="font-size:0.8rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:0.1rem;">Employee Performance Tracker</p>
+        <p>Employee Performance Tracker</p>
     </div>
     <div style="display:flex;align-items:center;gap:1rem;">
-        <div class="sync-badge"><span class="sync-dot"></span> Synced to Cloud</div>
+        <div class="sync-badge"><span class="dot"></span> Cloud Sync</div>
         <div class="emp-badge" id="empBadge">Loading...</div>
     </div>
 </div>
 
-<div class="container" id="mainContent" style="display:none;">
+<div class="loading" id="loadingState">
+    <div class="spinner"></div>
+    <p>Loading your dashboard...</p>
+</div>
 
-    <!-- WEEK SELECTOR -->
+<div class="container" id="mainContent" style="display:none;">
     <div class="card">
         <h3>📅 Select Week</h3>
         <div class="week-row">
-            <div class="form-group">
+            <div class="fg">
                 <label>Week</label>
                 <select id="weekSel"></select>
                 <div class="week-info" id="weekInfo">—</div>
             </div>
-            <div class="form-group">
-                <label>Year</label>
-                <select id="yearSel"></select>
-            </div>
-            <div class="cur-week" id="curWeekBadge">📍 Current: Week —</div>
-            <button class="btn-secondary" onclick="goToCurrent()">Go to Current Week</button>
+            <div class="fg"><label>Year</label><select id="yearSel"></select></div>
+            <div class="cur-week" id="curWeekBadge">📍 Current: —</div>
+            <button class="btn-g" onclick="goToCurrent()">Go to Current</button>
         </div>
     </div>
 
-    <!-- DATA ENTRY -->
-    <div class="card" id="entryCard">
+    <div class="card">
         <h3>✏️ Enter Data — <span id="entryLabel" style="color:var(--accent)">—</span></h3>
         <form id="dataForm">
-            <div class="graphs-grid" id="graphInputs">
-                <p style="color:var(--muted);font-size:0.9rem;">No graphs set up yet. Contact your manager.</p>
-            </div>
+            <div class="graphs-grid" id="graphInputs"></div>
             <div class="btn-group">
-                <button type="submit" class="btn-primary" id="saveBtn">💾 Save Week</button>
-                <button type="button" class="btn-secondary" onclick="clearForm()">Clear</button>
+                <button type="submit" class="btn-p" id="saveBtn">💾 Save Week</button>
+                <button type="button" class="btn-g" onclick="clearForm()">Clear</button>
             </div>
         </form>
     </div>
 
-    <!-- CHARTS -->
     <div id="chartsSection"></div>
 
-    <!-- HISTORY -->
     <div class="card">
         <h3>📊 My History</h3>
         <div style="overflow-x:auto;">
@@ -118,389 +110,211 @@
             </table>
         </div>
     </div>
-
 </div>
 
-<!-- NO ACCESS -->
 <div class="no-access" id="noAccess" style="display:none;">
     <div class="icon">🔒</div>
     <h2>Invalid Link</h2>
-    <p>This link is not valid. Please ask your manager for the correct link.</p>
+    <p>Please ask your manager for the correct link.</p>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══ CONFIG ═══
-const SUPABASE_URL = 'https://fuvnwjskwjtvpwtbdzey.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_8w77NMR3vcQXnJ6YpbN6Fw_6QgiI6Sl';
+const SB_URL = 'https://fuvnwjskwjtvpwtbdzey.supabase.co';
+const SB_KEY = 'sb_publishable_8w77NMR3vcQXnJ6YpbN6Fw_6QgiI6Sl';
 
-// Employee names mapping
-const EMPLOYEE_NAMES = {
-    'employee1': 'Employee 1',
-    'employee2': 'Employee 2',
-    'employee3': 'Employee 3',
-    'employee4': 'Employee 4',
-    'employee5': 'Employee 5'
-};
+let empId='', empName='', graphs=[], myData=[], breakdowns={};
 
-// Graph definitions per employee (manager sets these)
-const GRAPH_CONFIG = {
-    'employee1': ['Sales','Calls','Leads'],
-    'employee2': ['Sales','Calls','Leads'],
-    'employee3': ['Sales','Calls','Leads'],
-    'employee4': ['Sales','Calls','Leads'],
-    'employee5': ['Sales','Calls','Leads']
-};
-
-// ═══ STATE ═══
-let empId = '';
-let empName = '';
-let graphs = [];
-let myData = [];
-let charts = {};
-let breakdowns = {};
-
-// ═══ SUPABASE ═══
-async function sbFetch(method, path, body) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+async function sb(method, table, body, qs='') {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${qs}`,{
         method,
-        headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': method === 'POST' ? 'return=representation' : ''
-        },
-        body: body ? JSON.stringify(body) : undefined
+        headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':method==='PATCH'?'return=representation':''},
+        body: body?JSON.stringify(body):undefined
     });
-    if (!res.ok) throw new Error(await res.text());
-    return method === 'DELETE' ? null : res.json();
+    const t = await r.text();
+    return t?JSON.parse(t):null;
 }
 
-async function loadMyData() {
-    myData = await sbFetch('GET', `employee_data?employee_id=eq.${empId}&order=year.asc,week.asc`);
+// WEEK UTILS
+function getWeekNum(d){
+    const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),day=dt.getUTCDay()||7;
+    dt.setUTCDate(dt.getUTCDate()+4-day);
+    const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+    return [dt.getUTCFullYear(),Math.ceil((((dt-ys)/86400000)+1)/7)];
 }
-
-async function saveWeekData(week, year, dateRange, graphName, value, breakdown) {
-    // Check if exists
-    const existing = await sbFetch('GET', `employee_data?employee_id=eq.${empId}&week=eq.${week}&year=eq.${year}&graph_name=eq.${encodeURIComponent(graphName)}`);
-    if (existing && existing.length > 0) {
-        await sbFetch('PATCH', `employee_data?employee_id=eq.${empId}&week=eq.${week}&year=eq.${year}&graph_name=eq.${encodeURIComponent(graphName)}`,
-            { value, breakdown: JSON.stringify(breakdown), date_range: dateRange });
-    } else {
-        await sbFetch('POST', 'employee_data',
-            { employee_id: empId, week, year, date_range: dateRange, graph_name: graphName, value, breakdown: JSON.stringify(breakdown) });
-    }
+function getWeekDates(year,week){
+    const jan1=new Date(year,0,1),dow=jan1.getDay()||7;
+    const mon=new Date(jan1); mon.setDate(jan1.getDate()+(week-1)*7-dow+1);
+    const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+    const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `${f(mon)} – ${f(sun)}`;
 }
+function weeksInYear(y){return getWeekNum(new Date(y,11,28))[1];}
+function weekKey(y,w){return `${y}-W${String(w).padStart(2,'0')}`;}
+function getSelWeek(){return parseInt(document.getElementById('weekSel').value);}
+function getSelYear(){return parseInt(document.getElementById('yearSel').value);}
 
-// ═══ WEEK UTILS ═══
-function getWeekNumber(d) {
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const day = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - day);
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return [date.getUTCFullYear(), Math.ceil((((date - yearStart) / 86400000) + 1) / 7)];
-}
-
-function getWeekDates(year, week) {
-    const jan1 = new Date(year, 0, 1);
-    const dayOfWeek = jan1.getDay() || 7;
-    const monday = new Date(jan1);
-    monday.setDate(jan1.getDate() + (week - 1) * 7 - dayOfWeek + 1);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    return `${fmt(monday)} – ${fmt(sunday)}`;
-}
-
-function weeksInYear(year) {
-    return getWeekNumber(new Date(year, 11, 28))[1];
-}
-
-function weekKey(year, week) {
-    return `${year}-W${String(week).padStart(2,'0')}`;
-}
-
-function getCurrentWeek() {
-    return getWeekNumber(new Date());
-}
-
-// ═══ SELECTORS ═══
-function initSelectors() {
-    const [curYear, curWeek] = getCurrentWeek();
-    const yr = document.getElementById('yearSel');
-    yr.innerHTML = '';
-    for (let y = curYear - 3; y <= curYear + 2; y++) {
-        const o = document.createElement('option');
-        o.value = y; o.textContent = y;
-        if (y === curYear) o.selected = true;
-        yr.appendChild(o);
-    }
-    initWeekDropdown(curYear, curWeek);
-    yr.addEventListener('change', () => { initWeekDropdown(parseInt(yr.value)); updateWeekInfo(); });
-    document.getElementById('weekSel').addEventListener('change', updateWeekInfo);
-    document.getElementById('curWeekBadge').textContent = `📍 Current: Week ${curWeek}, ${curYear}`;
+function initSelectors(){
+    const [cy,cw]=getWeekNum(new Date());
+    const yr=document.getElementById('yearSel'); yr.innerHTML='';
+    for(let y=cy-3;y<=cy+2;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===cy)o.selected=true;yr.appendChild(o);}
+    initWeeks(cy,cw);
+    yr.addEventListener('change',()=>{initWeeks(parseInt(yr.value));updateWeekInfo();});
+    document.getElementById('weekSel').addEventListener('change',updateWeekInfo);
+    document.getElementById('curWeekBadge').textContent=`📍 Current: Week ${cw}, ${cy}`;
     updateWeekInfo();
 }
-
-function initWeekDropdown(year, selectWeek) {
-    const sel = document.getElementById('weekSel');
-    const total = weeksInYear(year);
-    sel.innerHTML = '';
-    for (let w = 1; w <= total; w++) {
-        const o = document.createElement('option');
-        o.value = w;
-        o.textContent = `Week ${w}  ·  ${getWeekDates(year, w)}`;
-        if (selectWeek && w === selectWeek) o.selected = true;
-        sel.appendChild(o);
-    }
-    if (!selectWeek) {
-        const [, cw] = getCurrentWeek();
-        sel.value = Math.min(cw, total);
-    }
+function initWeeks(year,sel){
+    const s=document.getElementById('weekSel'),total=weeksInYear(year);
+    s.innerHTML='';
+    for(let w=1;w<=total;w++){const o=document.createElement('option');o.value=w;o.textContent=`Week ${w}  ·  ${getWeekDates(year,w)}`;if(sel&&w===sel)o.selected=true;s.appendChild(o);}
+    if(!sel){const[,cw]=getWeekNum(new Date());s.value=Math.min(cw,total);}
     updateWeekInfo();
 }
+function goToCurrent(){const[y,w]=getWeekNum(new Date());document.getElementById('yearSel').value=y;initWeeks(y,w);}
 
-function goToCurrent() {
-    const [y, w] = getCurrentWeek();
-    document.getElementById('yearSel').value = y;
-    initWeekDropdown(y, w);
-}
-
-function updateWeekInfo() {
-    const year = parseInt(document.getElementById('yearSel').value);
-    const week = parseInt(document.getElementById('weekSel').value);
-    const dateRange = getWeekDates(year, week);
-    document.getElementById('weekInfo').textContent = dateRange;
-    document.getElementById('entryLabel').textContent = `Week ${week}, ${year} (${dateRange})`;
-    prefillForm(week, year);
+function updateWeekInfo(){
+    const y=getSelYear(),w=getSelWeek(),dr=getWeekDates(y,w);
+    document.getElementById('weekInfo').textContent=dr;
+    document.getElementById('entryLabel').textContent=`Week ${w}, ${y} (${dr})`;
+    prefillForm(w,y);
     renderCharts();
 }
 
-function getSelWeek() { return parseInt(document.getElementById('weekSel').value); }
-function getSelYear() { return parseInt(document.getElementById('yearSel').value); }
-
-// ═══ FORM ═══
-function renderForm() {
-    const container = document.getElementById('graphInputs');
-    container.innerHTML = '';
-    if (!graphs.length) {
-        container.innerHTML = '<p style="color:var(--muted);font-size:0.9rem;">No graphs configured. Contact your manager.</p>';
-        return;
-    }
-    graphs.forEach(gName => {
-        const div = document.createElement('div');
-        div.className = 'form-group';
-        const bKey = `${gName}`;
-        div.innerHTML = `
-            <label>${gName}</label>
-            <input type="number" id="inp_${gName}" placeholder="0" step="any">
-            <div class="breakdown-section">
-                <div class="breakdown-title">📋 Breakdown (${gName})</div>
-                <div id="bd_items_${gName}"></div>
-                <div class="breakdown-add">
-                    <input type="text" id="bd_inp_${gName}" placeholder="Add item..." onkeydown="if(event.key==='Enter'){event.preventDefault();addBD('${gName}');}"/>
-                    <button type="button" onclick="addBD('${gName}')">+</button>
+// FORM
+function renderForm(){
+    const c=document.getElementById('graphInputs'); c.innerHTML='';
+    if(!graphs.length){c.innerHTML='<p style="color:var(--muted)">No graphs configured. Ask your manager to set up your graphs.</p>';return;}
+    graphs.forEach(g=>{
+        const div=document.createElement('div');
+        div.className='fg';
+        div.innerHTML=`
+            <label>${g}</label>
+            <input type="number" id="inp_${g.replace(/\W/g,'_')}" placeholder="0" step="any">
+            <div class="bd-section">
+                <div class="bd-title">📋 Breakdown</div>
+                <div id="bdi_${g.replace(/\W/g,'_')}"></div>
+                <div class="bd-add">
+                    <input type="text" id="bdinp_${g.replace(/\W/g,'_')}" placeholder="Add item..." onkeydown="if(event.key==='Enter'){event.preventDefault();addBD('${g}');}"/>
+                    <button type="button" onclick="addBD('${g}')">+</button>
                 </div>
             </div>`;
-        container.appendChild(div);
+        c.appendChild(div);
     });
 }
 
-function prefillForm(week, year) {
-    if (!graphs.length) return;
-    graphs.forEach(gName => {
-        const entry = myData.find(d => d.week === week && d.year === year && d.graph_name === gName);
-        const el = document.getElementById(`inp_${gName}`);
-        if (el) el.value = entry ? entry.value : '';
-        // Load breakdown
-        const key = `${weekKey(year, week)}_${gName}`;
-        if (entry && entry.breakdown) {
-            try { breakdowns[key] = JSON.parse(entry.breakdown); } catch(e) { breakdowns[key] = []; }
-        } else {
-            breakdowns[key] = [];
-        }
-        renderBD(gName);
+function prefillForm(week,year){
+    if(!graphs.length) return;
+    graphs.forEach(g=>{
+        const e=myData.find(d=>d.week===week&&d.year===year&&d.graph_name===g);
+        const el=document.getElementById(`inp_${g.replace(/\W/g,'_')}`);
+        if(el) el.value=e?e.value:'';
+        const key=`${weekKey(year,week)}_${g}`;
+        if(e?.breakdown){try{breakdowns[key]=JSON.parse(e.breakdown);}catch(err){breakdowns[key]=[];}}
+        else breakdowns[key]=[];
+        renderBD(g);
     });
 }
 
-function getBDKey(gName) {
-    return `${weekKey(getSelYear(), getSelWeek())}_${gName}`;
+function getBDKey(g){return `${weekKey(getSelYear(),getSelWeek())}_${g}`;}
+function renderBD(g){
+    const key=getBDKey(g),items=breakdowns[key]||[],c=document.getElementById(`bdi_${g.replace(/\W/g,'_')}`);
+    if(!c) return;
+    c.innerHTML=items.length?items.map((item,i)=>`<div class="bd-item"><span>• ${item}</span><button class="bd-del" onclick="delBD('${g}',${i})">✕</button></div>`).join(''):'<div style="font-size:0.78rem;color:var(--muted);font-style:italic;padding:0.2rem 0;">No items yet</div>';
 }
-
-function renderBD(gName) {
-    const key = getBDKey(gName);
-    const items = breakdowns[key] || [];
-    const c = document.getElementById(`bd_items_${gName}`);
-    if (!c) return;
-    c.innerHTML = '';
-    if (!items.length) {
-        c.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);font-style:italic;padding:0.3rem 0;">No items yet</div>';
-        return;
-    }
-    items.forEach((item, idx) => {
-        const d = document.createElement('div');
-        d.className = 'breakdown-item';
-        d.innerHTML = `<span style="font-size:0.82rem;">• ${item}</span><button class="breakdown-del" onclick="delBD('${gName}',${idx})">✕</button>`;
-        c.appendChild(d);
-    });
+function addBD(g){
+    const inp=document.getElementById(`bdinp_${g.replace(/\W/g,'_')}`),val=inp.value.trim();if(!val) return;
+    const key=getBDKey(g);if(!breakdowns[key])breakdowns[key]=[];
+    breakdowns[key].push(val);renderBD(g);inp.value='';inp.focus();
 }
+function delBD(g,i){const key=getBDKey(g);if(breakdowns[key]){breakdowns[key].splice(i,1);renderBD(g);}}
 
-function addBD(gName) {
-    const inp = document.getElementById(`bd_inp_${gName}`);
-    const val = inp.value.trim();
-    if (!val) return;
-    const key = getBDKey(gName);
-    if (!breakdowns[key]) breakdowns[key] = [];
-    breakdowns[key].push(val);
-    renderBD(gName);
-    inp.value = '';
-    inp.focus();
-}
-
-function delBD(gName, idx) {
-    const key = getBDKey(gName);
-    if (breakdowns[key]) { breakdowns[key].splice(idx, 1); renderBD(gName); }
-}
-
-document.getElementById('dataForm').addEventListener('submit', async function(e) {
+document.getElementById('dataForm').addEventListener('submit',async function(e){
     e.preventDefault();
-    const week = getSelWeek();
-    const year = getSelYear();
-    const dateRange = getWeekDates(year, week);
-    const btn = document.getElementById('saveBtn');
-    btn.textContent = '⏳ Saving...';
-    btn.disabled = true;
-    try {
-        for (const gName of graphs) {
-            const val = parseFloat(document.getElementById(`inp_${gName}`).value) || 0;
-            const key = getBDKey(gName);
-            const bd = breakdowns[key] || [];
-            await saveWeekData(week, year, dateRange, gName, val, bd);
+    const week=getSelWeek(),year=getSelYear(),dr=getWeekDates(year,week);
+    const btn=document.getElementById('saveBtn');btn.textContent='⏳ Saving...';btn.disabled=true;
+    try{
+        for(const g of graphs){
+            const val=parseFloat(document.getElementById(`inp_${g.replace(/\W/g,'_')}`).value)||0;
+            const bd=breakdowns[getBDKey(g)]||[];
+            const existing=await sb('GET','employee_data',null,`?employee_id=eq.${empId}&week=eq.${week}&year=eq.${year}&graph_name=eq.${encodeURIComponent(g)}`);
+            if(existing?.length>0) await sb('PATCH','employee_data',{value:val,breakdown:JSON.stringify(bd),date_range:dr},`?employee_id=eq.${empId}&week=eq.${week}&year=eq.${year}&graph_name=eq.${encodeURIComponent(g)}`);
+            else await sb('POST','employee_data',{employee_id:empId,week,year,date_range:dr,graph_name:g,value:val,breakdown:JSON.stringify(bd)});
         }
-        await loadMyData();
-        renderCharts();
-        renderHistory();
-        showToast('✅ Saved successfully!', 'success');
-        clearForm();
-    } catch(err) {
-        showToast('❌ Error saving. Try again.', 'error');
-        console.error(err);
-    }
-    btn.textContent = '💾 Save Week';
-    btn.disabled = false;
+        myData=await sb('GET','employee_data',null,`?employee_id=eq.${empId}&order=year.asc,week.asc`);
+        renderCharts();renderHistory();
+        toast('✅ Saved!');clearForm();
+    }catch(err){toast('❌ Error saving',false);console.error(err);}
+    btn.textContent='💾 Save Week';btn.disabled=false;
 });
 
-function clearForm() {
-    graphs.forEach(g => { const el = document.getElementById(`inp_${g}`); if(el) el.value = ''; });
-}
+function clearForm(){graphs.forEach(g=>{const el=document.getElementById(`inp_${g.replace(/\W/g,'_')}`);if(el)el.value='';});}
 
-// ═══ CHARTS ═══
-function renderCharts() {
-    const section = document.getElementById('chartsSection');
-    section.innerHTML = '';
-    if (!graphs.length || !myData.length) return;
-
-    graphs.forEach(gName => {
-        const data = myData.filter(d => d.graph_name === gName).slice(-12);
-        const card = document.createElement('div');
-        card.className = 'card';
-        const latest = data.length ? data[data.length-1].value : 0;
-        card.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-                <span style="font-size:1.05rem;font-weight:600;">${gName}</span>
-                <span style="font-size:1.35rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);">${latest.toLocaleString('en-US')}</span>
-            </div>
-            <div class="chart-container"><canvas id="ch_${gName.replace(/\s/g,'_')}"></canvas></div>`;
-        section.appendChild(card);
-
-        const ctx = document.getElementById(`ch_${gName.replace(/\s/g,'_')}`).getContext('2d');
-        const selKey = weekKey(getSelYear(), getSelWeek());
-        new Chart(ctx, {
-            type:'line',
-            data:{
-                labels: data.map(d => `W${String(d.week).padStart(2,'0')} '${String(d.year).slice(2)}`),
-                datasets:[{
-                    data: data.map(d => d.value),
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.1)',
-                    borderWidth:2.5, tension:0.4, fill:true,
-                    pointRadius: data.map(d => weekKey(d.year,d.week)===selKey ? 7 : 4),
-                    pointBackgroundColor: data.map(d => weekKey(d.year,d.week)===selKey ? '#22c55e' : '#3b82f6'),
-                    pointBorderColor:'#1e293b', pointBorderWidth:2
-                }]
-            },
-            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(148,163,184,0.1)'},ticks:{color:'#94a3b8'}},x:{grid:{color:'rgba(148,163,184,0.1)'},ticks:{color:'#94a3b8'}}}}
-        });
+// CHARTS
+function renderCharts(){
+    const s=document.getElementById('chartsSection');s.innerHTML='';
+    if(!graphs.length||!myData.length) return;
+    const selKey=weekKey(getSelYear(),getSelWeek());
+    graphs.forEach(g=>{
+        const data=myData.filter(d=>d.graph_name===g).slice(-12);
+        const latest=data.length?data[data.length-1].value:0;
+        const cid=`ch_${g.replace(/\W/g,'_')}`;
+        const div=document.createElement('div');div.className='card';
+        div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;"><span style="font-size:1.05rem;font-weight:600;">${g}</span><span style="font-size:1.35rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);">${Number(latest).toLocaleString()}</span></div><div class="chart-container"><canvas id="${cid}"></canvas></div>`;
+        s.appendChild(div);
+        setTimeout(()=>{
+            new Chart(document.getElementById(cid).getContext('2d'),{
+                type:'line',
+                data:{labels:data.map(d=>`W${String(d.week).padStart(2,'0')} '${String(d.year).slice(2)}`),datasets:[{data:data.map(d=>d.value),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',borderWidth:2.5,tension:0.4,fill:true,pointRadius:data.map(d=>weekKey(d.year,d.week)===selKey?7:4),pointBackgroundColor:data.map(d=>weekKey(d.year,d.week)===selKey?'#22c55e':'#3b82f6'),pointBorderColor:'#1e293b',pointBorderWidth:2}]},
+                options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(148,163,184,0.1)'},ticks:{color:'#94a3b8'}},x:{grid:{color:'rgba(148,163,184,0.1)'},ticks:{color:'#94a3b8'}}}}
+            });
+        },50);
     });
 }
 
-// ═══ HISTORY ═══
-function renderHistory() {
-    const thead = document.getElementById('histHead');
-    const tbody = document.getElementById('histBody');
-    thead.innerHTML = `<th>Week</th><th>Dates</th>${graphs.map(g=>`<th>${g}</th>`).join('')}`;
-    const weeks = [...new Set(myData.map(d => `${d.year}-${d.week}`))].sort().reverse();
-    tbody.innerHTML = '';
-    if (!weeks.length) {
-        tbody.innerHTML = `<tr><td colspan="${graphs.length+2}" style="text-align:center;padding:2rem;color:var(--muted)">No data yet. Start filling in your weekly reports!</td></tr>`;
-        return;
-    }
-    weeks.forEach(wk => {
-        const [y, w] = wk.split('-').map(Number);
-        const row = document.createElement('tr');
-        const cells = graphs.map(g => {
-            const e = myData.find(d => d.year===y && d.week===w && d.graph_name===g);
-            let html = e ? e.value.toLocaleString('en-US') : '—';
-            if (e && e.breakdown) {
-                try {
-                    const items = JSON.parse(e.breakdown);
-                    if (items.length) html += `<div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem;">${items.map(i=>`• ${i}`).join('<br/>')}</div>`;
-                } catch(err){}
-            }
+// HISTORY
+function renderHistory(){
+    const th=document.getElementById('histHead'),tb=document.getElementById('histBody');
+    th.innerHTML=`<th>Week</th><th>Dates</th>${graphs.map(g=>`<th>${g}</th>`).join('')}`;
+    const weeks=[...new Set(myData.map(d=>`${d.year}-${d.week}`))].sort().reverse();
+    tb.innerHTML=weeks.length?weeks.map(wk=>{
+        const[y,w]=wk.split('-').map(Number);
+        const cells=graphs.map(g=>{
+            const e=myData.find(d=>d.year===y&&d.week===w&&d.graph_name===g);
+            let html=e?Number(e.value).toLocaleString():'—';
+            if(e?.breakdown){try{const it=JSON.parse(e.breakdown);if(it.length)html+=`<div style="font-size:0.7rem;color:var(--muted);margin-top:0.2rem;">${it.map(x=>`• ${x}`).join('<br/>')}</div>`;}catch(err){}}
             return `<td>${html}</td>`;
         }).join('');
-        row.innerHTML = `<td>W${String(w).padStart(2,'0')} ${y}</td><td style="color:var(--muted)">${getWeekDates(y,w)}</td>${cells}`;
-        tbody.appendChild(row);
-    });
+        return `<tr><td>W${String(w).padStart(2,'0')} ${y}</td><td style="color:var(--muted)">${getWeekDates(y,w)}</td>${cells}</tr>`;
+    }).join(''):`<tr><td colspan="${graphs.length+2}" style="text-align:center;padding:2rem;color:var(--muted)">No data yet!</td></tr>`;
 }
 
-// ═══ TOAST ═══
-function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast ${type}`;
-    t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 3000);
+function toast(msg,ok=true){
+    const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${ok?'ok':'err'}`;t.style.display='block';
+    setTimeout(()=>t.style.display='none',3000);
 }
 
-// ═══ INIT ═══
-async function init() {
-    const params = new URLSearchParams(window.location.search);
-    empId = params.get('emp') || '';
-
-    if (!empId || !EMPLOYEE_NAMES[empId]) {
-        document.getElementById('noAccess').style.display = 'flex';
-        return;
-    }
-
-    empName = EMPLOYEE_NAMES[empId];
-    graphs = GRAPH_CONFIG[empId] || [];
-    document.getElementById('empBadge').textContent = `👤 ${empName}`;
-    document.getElementById('mainContent').style.display = 'block';
-
-    try {
-        await loadMyData();
-    } catch(e) { console.error('Load error:', e); }
-
-    initSelectors();
-    renderForm();
-    prefillForm(getSelWeek(), getSelYear());
-    renderCharts();
-    renderHistory();
+// INIT
+async function init(){
+    const params=new URLSearchParams(window.location.search);
+    empId=params.get('emp')||'';
+    if(!empId){document.getElementById('loadingState').style.display='none';document.getElementById('noAccess').style.display='flex';return;}
+    try{
+        const cfgRows=await sb('GET','employee_config',null,`?employee_id=eq.${empId}`);
+        if(!cfgRows||!cfgRows.length){document.getElementById('loadingState').style.display='none';document.getElementById('noAccess').style.display='flex';return;}
+        const cfg=cfgRows[0];
+        empName=cfg.employee_name;
+        graphs=typeof cfg.graphs==='string'?JSON.parse(cfg.graphs):(cfg.graphs||[]);
+        document.getElementById('empBadge').textContent=`👤 ${empName}`;
+        myData=await sb('GET','employee_data',null,`?employee_id=eq.${empId}&order=year.asc,week.asc`)||[];
+    }catch(e){console.error(e);}
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('mainContent').style.display='block';
+    initSelectors();renderForm();prefillForm(getSelWeek(),getSelYear());renderCharts();renderHistory();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
